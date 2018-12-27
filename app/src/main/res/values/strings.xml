@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">dev-sph</string>
+
+    <string name="lbl_internet_error">Make sure you\'re connected to the internet.</string>
+    <string name="lbl_end_reached">End Reached</string>
+    <string name="lbl_next_page_error">Error Occur</string>
+</resources>
