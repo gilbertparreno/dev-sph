@@ -3,9 +3,10 @@ package com.gp.sph.views
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gp.sph.R
+import kotlinx.android.synthetic.main.item_decreasing.view.*
+import kotlinx.android.synthetic.main.item_error.view.*
 import kotlinx.android.synthetic.main.item_mobile_data.view.*
 import testservice.gp.com.api.model.MobileDataUsage
 
@@ -28,30 +29,28 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     interface AdapterListener {
         fun onEndReach()
+        fun retryPage()
     }
 
+    private val data: MutableList<NodeSet> = mutableListOf()
+
     lateinit var adapterListener: AdapterListener
-    private var data: MutableList<NodeSet> = mutableListOf()
     var lastItemQuarter: Record? = null
 
     fun addData(records: MutableList<Pair<String, MutableList<MobileDataUsage.Result.Record>>>, reset: Boolean) {
-        if (data == null) {
-            data = mutableListOf()
-        }
-
         if (reset) {
             data.clear()
             notifyDataSetChanged()
         }
 
         if (records != null) {
-            val oldSize = data!!.size
+            val oldSize = data.size
             if (oldSize > 0) {
-                data!!.removeAt(oldSize - 1)
+                data.removeAt(oldSize - 1)
                 checkForPossibleDuplicates(records)
             }
-            data!!.addAll(records)
-            val newSize = data!!.size
+            data.addAll(records)
+            val newSize = data.size
             notifyItemRangeChanged(oldSize, newSize)
         }
 
@@ -59,7 +58,7 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun setLastQuarterItem() {
-        val recs = data!!.last().second
+        val recs = data.last().second
         lastItemQuarter = recs?.last()!!
     }
 
@@ -76,22 +75,24 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     fun addRefresh() {
-        data!!.add(Pair(REFRESH, null))
-        notifyItemInserted(data!!.size - 1)
+        val lastIndex = data.lastIndex
+        data.removeAt(lastIndex)
+        data.add(Pair(REFRESH, null))
+        notifyItemChanged(lastIndex)
     }
 
     fun maxEndReach() {
-        data!!.add(Pair(END_REACH, null))
-        notifyItemInserted(data!!.size - 1)
+        data.add(Pair(END_REACH, null))
+        notifyItemInserted(data.size - 1)
     }
 
     fun addError() {
         // remove refresh item
-        data!!.removeAt(data!!.size - 1)
-        notifyItemRemoved(data!!.size - 1)
+        data.removeAt(data.size - 1)
+        notifyItemRemoved(data.size - 1)
 
-        data!!.add(Pair(ERROR, null))
-        notifyItemInserted(data!!.size - 1)
+        data.add(Pair(ERROR, null))
+        notifyItemInserted(data.size - 1)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -99,16 +100,16 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return when (viewType) {
             REFRESH -> {
                 val view = inflater.inflate(R.layout.item_page_next, parent, false)
-                RefreshViewHolder(view)
+                DefaultViewHolder(view)
             }
             END_REACH -> {
                 val view = inflater.inflate(R.layout.item_max_reached, parent, false)
-                RefreshViewHolder(view)
+                DefaultViewHolder(view)
             }
 
             ERROR -> {
                 val view = inflater.inflate(R.layout.item_error, parent, false)
-                RefreshViewHolder(view)
+                ErrorViewHolder(view)
             }
             else -> {
                 val view = inflater.inflate(R.layout.item_mobile_data, parent, false)
@@ -117,17 +118,17 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    override fun getItemCount(): Int = data?.size
+    override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            SUCCESS -> (holder as ItemViewHolder).bind(data[position])
             REFRESH -> adapterListener?.onEndReach()
+            SUCCESS -> (holder as ItemViewHolder).bind(data[position])
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        val pair = data!![position]
+        val pair = data[position]
         return when (pair.first) {
             is String -> SUCCESS
             else -> {
@@ -162,21 +163,29 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }
                 itemView.ivDataStat.setImageResource(R.drawable.vec_data_down)
 
-                itemView.chipGroup.removeAllViews()
+                itemView.llDetails.removeAllViews()
                 val inflater = LayoutInflater.from(itemView.context)
                 for (d: String in details) {
-                    val chip = inflater.inflate(R.layout.item_decreasing, null, false) as TextView
-                    chip.text = d
-                    itemView.chipGroup.addView(chip as View)
+                    val view = inflater.inflate(R.layout.item_decreasing, null, false)
+                    view.tvDecreasingQuarter.text = d
+                    itemView.llDetails.addView(view as View)
                 }
             } else {
                 itemView.ivDataStat.setOnClickListener(null)
                 itemView.ivDataStat.setImageResource(R.drawable.vec_data)
             }
 
-            itemView.chipGroup.visibility = if (firstItem.showDetails) View.VISIBLE else View.GONE
+            itemView.llDetails.visibility = if (firstItem.showDetails) View.VISIBLE else View.GONE
         }
     }
 
-    inner class RefreshViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class DefaultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+    inner class ErrorViewHolder : RecyclerView.ViewHolder {
+        constructor(itemView: View) : super(itemView) {
+            itemView.btnError.setOnClickListener {
+                adapterListener?.retryPage()
+            }
+        }
+    }
 }
