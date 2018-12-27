@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gp.sph.R
 import com.gp.sph.base.BaseActivity
 import kotlinx.android.synthetic.main.activity_mobile_data_usage.*
+import retrofit2.HttpException
 import testservice.gp.com.api.model.MobileDataUsage
 import testservice.gp.com.api.service.MobileDataUsageService
 import testservice.gp.com.api.service.ServiceFactory
@@ -31,6 +32,10 @@ class MainActivity : BaseActivity<MainContract.Presenter>(), MainContract.View {
         this@MainActivity.adapter.adapterListener = object : MobileDataUsageAdapter.AdapterListener {
             override fun onEndReach() {
                 getPresenter().searchDataStore(false)
+            }
+
+            override fun retryPage() {
+                adapter.addRefresh()
             }
         }
 
@@ -105,10 +110,16 @@ class MainActivity : BaseActivity<MainContract.Presenter>(), MainContract.View {
     override fun failedSearchDataStore(throwable: Throwable, reset: Boolean) {
         srMobileDataUsage.isRefreshing = false
         if (reset) {
-            if (throwable is UnknownHostException) {
-                tvError.text = getString(R.string.lbl_internet_error)
-            } else {
-                tvError.text = throwable.message
+            when (throwable) {
+                is UnknownHostException -> tvError.text = getString(R.string.lbl_internet_error)
+                is HttpException -> {
+                    if (throwable.code() == 504) {
+                        tvError.text = getString(R.string.lbl_internet_error)
+                    } else {
+                        tvError.text = throwable.message
+                    }
+                }
+                else -> tvError.text = throwable.message
             }
             tvError.visibility = View.VISIBLE
             rvMobileDataUsage.visibility = View.GONE
