@@ -1,0 +1,24 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="font">@font/font</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="chipStyle">@style/BaseChip</item>
+    </style>
+
+    <style name="BaseCardView" parent="@style/CardView.Dark">
+
+    </style>
+
+    <style name="BaseChip" parent="Base.Widget.MaterialComponents.Chip">
+        <item name="chipCornerRadius">5dp</item>
+        <item name="closeIconVisible">false</item>
+        <item name="android:textSize">8sp</item>
+    </style>
+</resources>
