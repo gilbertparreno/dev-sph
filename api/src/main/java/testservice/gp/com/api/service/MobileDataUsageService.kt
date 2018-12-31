@@ -11,4 +11,7 @@ import testservice.gp.com.api.model.MobileDataUsage
 interface MobileDataUsageService {
     @GET("action/datastore_search")
     fun searchDataStore(@Query("resource_id") id: String, @Query("limit") limit: Int, @Query("offset") offset: Int?): Observable<MobileDataUsage>
+
+    @GET("action/datastore_search")
+    fun test(@Query("resource_id") id: String, @Query("limit") limit: Int, @Query("offset") offset: Int?): Observable<MobileDataUsage>
 }

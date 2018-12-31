@@ -43,16 +43,14 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             notifyDataSetChanged()
         }
 
-        if (records != null) {
-            val oldSize = data.size
-            if (oldSize > 0) {
-                data.removeAt(oldSize - 1)
-                checkForPossibleDuplicates(records)
-            }
-            data.addAll(records)
-            val newSize = data.size
-            notifyItemRangeChanged(oldSize, newSize)
+        val oldSize = data.size
+        if (oldSize > 0) {
+            data.removeAt(oldSize - 1)
+            checkForPossibleDuplicates(records)
         }
+        data.addAll(records)
+        val newSize = data.size
+        notifyItemRangeChanged(oldSize, newSize)
 
         setLastQuarterItem()
     }
@@ -67,7 +65,7 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val newFirstData = newData.first()
 
         if (oldLastData.first == newFirstData.first) {
-            var tmp = oldLastData.second
+            val tmp = oldLastData.second
             tmp!!.addAll(newFirstData.second)
             data[data.lastIndex] = Pair(oldLastData.first, tmp)
             newData.removeAt(0)
@@ -122,7 +120,7 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            REFRESH -> adapterListener?.onEndReach()
+            REFRESH -> adapterListener.onEndReach()
             SUCCESS -> (holder as ItemViewHolder).bind(data[position])
         }
     }
@@ -166,7 +164,7 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 itemView.llDetails.removeAllViews()
                 val inflater = LayoutInflater.from(itemView.context)
                 for (d: String in details) {
-                    val view = inflater.inflate(R.layout.item_decreasing, null, false)
+                    val view = inflater.inflate(R.layout.item_decreasing, itemView.llDetails, false)
                     view.tvDecreasingQuarter.text = d
                     itemView.llDetails.addView(view as View)
                 }
@@ -181,10 +179,10 @@ class MobileDataUsageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class DefaultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    inner class ErrorViewHolder : RecyclerView.ViewHolder {
-        constructor(itemView: View) : super(itemView) {
+    inner class ErrorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        init {
             itemView.btnError.setOnClickListener {
-                adapterListener?.retryPage()
+                adapterListener.retryPage()
             }
         }
     }
