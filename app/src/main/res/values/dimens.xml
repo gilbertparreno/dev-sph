@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--Standard margin/paddings-->
+    <!--Standard margin/padding-->
     <dimen name="mp_double">32dp</dimen>
     <dimen name="mp_24dp">24dp</dimen>
     <dimen name="mp_standard">16dp</dimen>

@@ -66,14 +66,14 @@ class MainActivity : BaseActivity<MainContract.Presenter>(), MainContract.View {
         var tmpList: MutableList<MobileDataUsage.Result.Record> = mutableListOf()
         val records = mobileDataUsage.result?.records!!
         for (rec: MobileDataUsage.Result.Record in records) {
-            if (!tmpYear.equals(rec.quarter?.substring(0, 4))) {
+            if (!tmpYear.equals(rec.quarter.substring(0, 4))) {
                 map.add(Pair(tmpYear!!, tmpList))
-                tmpYear = rec.quarter?.substring(0, 4)
+                tmpYear = rec.quarter.substring(0, 4)
                 tmpList = mutableListOf()
             }
 
             if (records.first() == rec) {
-                var lastAdapterQuarter: Record? = adapter.lastItemQuarter
+                val lastAdapterQuarter: Record? = adapter.lastItemQuarter
                 if (lastAdapterQuarter != null && !reset) {
                     val prev = lastAdapterQuarter.dataVolume
                     val current = rec.dataVolume

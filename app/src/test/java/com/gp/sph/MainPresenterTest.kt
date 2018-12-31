@@ -36,8 +36,8 @@ class MainPresenterTest {
         MockitoAnnotations.initMocks(this)
         presenter = MainPresenter(view!!, service!!)
 
-        RxJavaPlugins.setIoSchedulerHandler { scheduler -> Schedulers.trampoline() }
-        RxAndroidPlugins.setMainThreadSchedulerHandler { scheduler -> Schedulers.trampoline() }
+        RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
+        RxAndroidPlugins.setMainThreadSchedulerHandler { Schedulers.trampoline() }
     }
 
     @Test
